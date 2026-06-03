@@ -9,7 +9,6 @@ def call(Map config = [:]) {
 
         stages {
             stage('Checkout') {
-                agent any
                 steps {
                     echo "📥 [Checkout] Descargando código de: ${env.APP_NAME}"
                     checkout scm
@@ -17,7 +16,6 @@ def call(Map config = [:]) {
             }
 
             stage('Build') {
-                agent any
                 when {
                     expression { return config.runBuild != false }
                 }
@@ -27,7 +25,6 @@ def call(Map config = [:]) {
             }
 
             stage('Test') {
-                agent any
                 when {
                     expression { return config.runTest != false }
                 }
@@ -37,7 +34,6 @@ def call(Map config = [:]) {
             }
 
             stage('Security Scan') {
-                agent any
                 when {
                     expression { return config.runSecurity != false }
                 }
@@ -64,7 +60,6 @@ def call(Map config = [:]) {
             }
 
             stage('Deploy') {
-                agent any
                 when {
                     expression { return config.runDeploy != false }
                 }
