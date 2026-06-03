@@ -45,7 +45,10 @@ def call(Map config = [:]) {
            
             stage('Aprobación Manual') {
                 when {
-                    expression { return config.requireApproval == true }
+                    allOf {
+                        expression { return config.requireApproval == true }
+                        branch 'main'
+                    }
                 }
                 steps {
                     script {
