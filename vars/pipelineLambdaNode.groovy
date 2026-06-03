@@ -20,7 +20,7 @@ def call(Map config = [:]) {
                 when { expression { return config.runStaticAnalysis != false } }
                 steps {
                     script {
-                        docker.image('semgrep/semgrep:latest').inside('--user root') {
+                        docker.image('semgrep/semgrep:latest').inside('--user root --entrypoint=""') {
                             sh '''
                                 semgrep scan \
                                     --config auto \
@@ -34,7 +34,8 @@ def call(Map config = [:]) {
                 }
                 post {
                     always {
-                        archiveArtifacts artifacts: 'semgrep-report.json', allowEmptyArchive: true
+                        archiveArtifacts artifacts: 'semgrep-report.json',
+                                         allowEmptyArchive: true
                     }
                 }
             }
