@@ -7,12 +7,7 @@ def call(Map config = [:]) {
             DEPLOY_ENV  = "${env.BRANCH_NAME == 'main' ? 'production' : env.BRANCH_NAME == 'staging' ? 'staging' : 'dev'}"
         }
         stages {
-            stage('Checkout') {
-                steps {
-                    echo "📥 Descargando: ${env.APP_NAME} | Ambiente: ${env.DEPLOY_ENV}"
-                    checkout scm
-                }
-            }
+            
             stage('Build') {
                 when { expression { return config.runBuild != false } }
                 steps { echo "🏗️ Compilando..." }
@@ -21,9 +16,27 @@ def call(Map config = [:]) {
                 when { expression { return config.runTest != false } }
                 steps { echo "🧪 Ejecutando pruebas..." }
             }
-            stage('Security Scan') {
-                when { expression { return config.runSecurity != false } }
-                steps { echo "🛡️ Escaneando vulnerabilidades..." }
+            stage('Static Code Analysis') {
+                when { expression { return config.runStaticAnalysis != false } }
+                steps {
+                    script {
+                        docker.image('semgrep/semgrep:latest').inside('--user root') {
+                            sh '''
+                                semgrep scan \
+                                    --config auto \
+                                    --json \
+                                    --output semgrep-report.json \
+                                    --severity ERROR \
+                                    . || true
+                            '''
+                        }
+                    }
+                }
+                post {
+                    always {
+                        archiveArtifacts artifacts: 'semgrep-report.json', allowEmptyArchive: true
+                    }
+                }
             }
 
             stage('Aprobación Manual') {
