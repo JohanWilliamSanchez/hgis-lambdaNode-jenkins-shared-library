@@ -44,6 +44,20 @@ def call(Map config = [:]) {
                 }
             }
 
+           
+            stage('Aprobación Manual') {
+                when {
+                    expression { return config.requireApproval == true }
+                }
+                steps {
+                    script {
+                        input message: "🚀 ¿Deseas autorizar el despliegue de ${env.APP_NAME}?",
+                              ok: "¡Sí, desplegar!",
+                              submitter: "admin"
+                    }
+                }
+            }
+
             stage('Deploy') {
                 when {
                     expression { return config.runDeploy != false }
