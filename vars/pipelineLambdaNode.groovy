@@ -18,7 +18,8 @@ def call(Map config = [:]) {
             }
             stage('Static Code Analysis') {
                 when { expression { return config.runStaticAnalysis != false } }
-                 script {
+                steps {                                          // ← faltaba este bloque
+                    script {
                         docker.image('semgrep/semgrep:latest').inside('--user root --entrypoint=""') {
                             sh '''
                                 semgrep scan \
@@ -30,7 +31,8 @@ def call(Map config = [:]) {
                             '''
                         }
                     }
-                post {
+                }
+                post {                                          // ← al mismo nivel que steps
                     always {
                         archiveArtifacts artifacts: 'semgrep-report.json',
                                          allowEmptyArchive: true
