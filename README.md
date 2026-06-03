@@ -1,0 +1,1 @@
+# hgis-lambdaNode-jenkins-shared-library
