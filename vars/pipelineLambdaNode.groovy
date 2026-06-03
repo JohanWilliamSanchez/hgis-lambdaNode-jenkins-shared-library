@@ -19,18 +19,15 @@ def call(Map config = [:]) {
             stage('Static Code Analysis') {
                 when { expression { return config.runStaticAnalysis != false } }
                 steps {
-                    script {
-                        docker.image('semgrep/semgrep:latest').inside('--user root --entrypoint=""') {
-                            sh '''
-                                semgrep scan \
-                                    --config auto \
-                                    --json \
-                                    --output semgrep-report.json \
-                                    --severity ERROR \
-                                    . || true
-                            '''
-                        }
-                    }
+                    sh '''
+                        pip install semgrep -q --break-system-packages
+                        semgrep scan \
+                            --config auto \
+                            --json \
+                            --output semgrep-report.json \
+                            --severity ERROR \
+                            . || true
+                    '''
                 }
                 post {
                     always {
